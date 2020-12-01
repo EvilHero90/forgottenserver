@@ -26,6 +26,7 @@
 #include "weapons.h"
 #include "configmanager.h"
 #include "game.h"
+#include "script.h"
 
 #include "pugicast.h"
 
@@ -33,6 +34,7 @@ extern Game g_game;
 extern Spells* g_spells;
 extern Monsters g_monsters;
 extern ConfigManager g_config;
+extern Scripts* g_scripts;
 
 spellBlock_t::~spellBlock_t()
 {
@@ -178,7 +180,7 @@ bool Monsters::deserializeSpell(const pugi::xml_node& node, spellBlock_t& sb, co
 		}
 
 		std::unique_ptr<CombatSpell> combatSpellPtr(new CombatSpell(nullptr, needTarget, needDirection));
-		if (!combatSpellPtr->loadScript("data/" + g_spells->getScriptBaseName() + "/scripts/" + scriptName)) {
+		if (!combatSpellPtr->loadScript("data/" + g_spells->getScriptBaseName() + "/scripts/" + scriptName, nullptr)) {
 			return false;
 		}
 
@@ -566,7 +568,7 @@ bool Monsters::deserializeSpell(MonsterSpell* spell, spellBlock_t& sb, const std
 
 	if (spell->isScripted) {
 		std::unique_ptr<CombatSpell> combatSpellPtr(new CombatSpell(nullptr, spell->needTarget, spell->needDirection));
-		if (!combatSpellPtr->loadScript("data/" + g_spells->getScriptBaseName() + "/scripts/" + spell->scriptName)) {
+		if (!combatSpellPtr->loadScript("data/scripts/" + spell->scriptName, &g_scripts->getScriptInterface())) {
 			std::cout << "cannot find file" << std::endl;
 			return false;
 		}

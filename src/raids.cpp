@@ -560,7 +560,7 @@ bool ScriptEvent::configureRaidEvent(const pugi::xml_node& eventNode)
 		return false;
 	}
 
-	if (!loadScript("data/raids/scripts/" + std::string(scriptAttribute.as_string()))) {
+	if (!loadScript("data/raids/scripts/" + std::string(scriptAttribute.as_string()), nullptr)) {
 		std::cout << "Error: [ScriptEvent::configureRaidEvent] Can not load raid script." << std::endl;
 		return false;
 	}

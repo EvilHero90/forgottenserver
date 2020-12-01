@@ -66,7 +66,7 @@ bool BaseEvents::loadFromXml()
 		pugi::xml_attribute scriptAttribute = node.attribute("script");
 		if (scriptAttribute) {
 			std::string scriptFile = "scripts/" + std::string(scriptAttribute.as_string());
-			success = event->checkScript(basePath, scriptsName, scriptFile) && event->loadScript(basePath + scriptFile);
+			success = event->checkScript(basePath, scriptsName, scriptFile) && event->loadScript(basePath + scriptFile, nullptr);
 			if (node.attribute("function")) {
 				event->loadFunction(node.attribute("function"), true);
 			}
@@ -125,20 +125,24 @@ bool Event::checkScript(const std::string& basePath, const std::string& scriptsN
 	return true;
 }
 
-bool Event::loadScript(const std::string& scriptFile)
+bool Event::loadScript(const std::string& scriptFile, LuaScriptInterface* interface)
 {
-	if (!scriptInterface || scriptId != 0) {
+	if (!interface) {
+		interface = scriptInterface;
+	}
+
+	if (!interface || scriptId != 0) {
 		std::cout << "Failure: [Event::loadScript] scriptInterface == nullptr. scriptid = " << scriptId << std::endl;
 		return false;
 	}
 
-	if (scriptInterface->loadFile(scriptFile) == -1) {
+	if (interface->loadFile(scriptFile) == -1) {
 		std::cout << "[Warning - Event::loadScript] Can not load script. " << scriptFile << std::endl;
-		std::cout << scriptInterface->getLastLuaError() << std::endl;
+		std::cout << interface->getLastLuaError() << std::endl;
 		return false;
 	}
 
-	int32_t id = scriptInterface->getEvent(getScriptEventName());
+	int32_t id = interface->getEvent(getScriptEventName());
 	if (id == -1) {
 		std::cout << "[Warning - Event::loadScript] Event " << getScriptEventName() << " not found. " << scriptFile << std::endl;
 		return false;

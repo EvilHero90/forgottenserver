@@ -34,7 +34,7 @@ class Event
 		virtual bool configureEvent(const pugi::xml_node& node) = 0;
 
 		bool checkScript(const std::string& basePath, const std::string& scriptsName, const std::string& scriptFile) const;
-		bool loadScript(const std::string& scriptFile);
+		bool loadScript(const std::string& scriptFile, LuaScriptInterface* interface);
 		bool loadCallback();
 		virtual bool loadFunction(const pugi::xml_attribute&, bool) {
 			return false;
