@@ -1068,6 +1068,9 @@ void LuaScriptInterface::registerFunctions()
 	//isScriptsInterface()
 	lua_register(luaState, "isScriptsInterface", LuaScriptInterface::luaIsScriptsInterface);
 
+	//hasBitSet(flags, flag)
+	lua_register(luaState, "hasBitSet", LuaScriptInterface::luaHasBitSet);
+
 #ifndef LUAJIT_VERSION
 	//bit operations for Lua, based on bitlib project release 24
 	//bit.bnot, bit.band, bit.bor, bit.bxor, bit.lshift, bit.rshift
@@ -3725,6 +3728,15 @@ int LuaScriptInterface::luaIsScriptsInterface(lua_State* L)
 		reportErrorFunc("EventCallback: can only be called inside (data/scripts/)");
 		pushBoolean(L, false);
 	}
+	return 1;
+}
+
+int LuaScriptInterface::luaHasBitSet(lua_State* L)
+{
+	//hasBitSet()
+	uint32_t flags = getNumber<uint32_t>(L, 1);
+	uint32_t flag = getNumber<uint32_t>(L, 2);
+	lua_pushnumber(L, hasBitSet(flags, flag));
 	return 1;
 }
 
@@ -12693,7 +12705,7 @@ int LuaScriptInterface::luaMonsterTypeGetAttackList(lua_State* L)
 
 	int index = 0;
 	for (const auto& spellBlock : monsterType->info.attackSpells) {
-		lua_createtable(L, 0, 8);
+		lua_createtable(L, 0, 11);
 
 		setField(L, "chance", spellBlock.chance);
 		setField(L, "isCombatSpell", spellBlock.combatSpell ? 1 : 0);
@@ -12702,6 +12714,9 @@ int LuaScriptInterface::luaMonsterTypeGetAttackList(lua_State* L)
 		setField(L, "maxCombatValue", spellBlock.maxCombatValue);
 		setField(L, "range", spellBlock.range);
 		setField(L, "speed", spellBlock.speed);
+		setField(L, "name", spellBlock.name);
+		setField(L, "skill", spellBlock.skill);
+		setField(L, "attack", spellBlock.attack);
 		pushUserdata<CombatSpell>(L, static_cast<CombatSpell*>(spellBlock.spell));
 		lua_setfield(L, -2, "spell");
 
@@ -12747,7 +12762,7 @@ int LuaScriptInterface::luaMonsterTypeGetDefenseList(lua_State* L)
 
 	int index = 0;
 	for (const auto& spellBlock : monsterType->info.defenseSpells) {
-		lua_createtable(L, 0, 8);
+		lua_createtable(L, 0, 11);
 
 		setField(L, "chance", spellBlock.chance);
 		setField(L, "isCombatSpell", spellBlock.combatSpell ? 1 : 0);
@@ -12756,6 +12771,9 @@ int LuaScriptInterface::luaMonsterTypeGetDefenseList(lua_State* L)
 		setField(L, "maxCombatValue", spellBlock.maxCombatValue);
 		setField(L, "range", spellBlock.range);
 		setField(L, "speed", spellBlock.speed);
+		setField(L, "name", spellBlock.name);
+		setField(L, "skill", spellBlock.skill);
+		setField(L, "attack", spellBlock.attack);
 		pushUserdata<CombatSpell>(L, static_cast<CombatSpell*>(spellBlock.spell));
 		lua_setfield(L, -2, "spell");
 

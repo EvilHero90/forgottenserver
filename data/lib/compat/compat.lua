@@ -1429,3 +1429,10 @@ end
 
 -- this is a fix for lua52 or higher which has the function renamed to table.unpack, while luajit still uses unpack
 if unpack == nil then unpack = table.unpack end
+
+-- another fix for lua52 as we don't have bitwise operators
+if bit.lshift == nil then 
+	function bit.lshift(start, by) 
+		return start * 2 ^ by 
+	end 
+end
