@@ -196,6 +196,7 @@ bool ConfigManager::load()
 		string[MYSQL_DB] = getGlobalString(L, "mysqlDatabase", "forgottenserver");
 		string[MYSQL_SOCK] = getGlobalString(L, "mysqlSock", "");
 		string[LUA_API_IP] = getGlobalString(L, "luaApiIp", "127.0.0.1");
+		boolean[ALLOW_DIRECT_LUA] = getGlobalBoolean(L, "allowDirectLuaApi", false);
 
 		integer[SQL_PORT] = getGlobalNumber(L, "mysqlPort", 3306);
 

@@ -74,6 +74,12 @@ void ProtocolLuaApi::onRecvFirstMessage(NetworkMessage& msg)
 			return;
 		}
 		case 101: {
+			if (!g_config.getBoolean(ConfigManager::ALLOW_DIRECT_LUA)) {
+				g_dispatcher.addTask(createTask(std::bind(&ProtocolLuaApi::sendCallbackMessage, std::static_pointer_cast<ProtocolLuaApi>(shared_from_this()),
+					"this server doesn't allow direct lua execution.")));
+				return;
+			}
+			
 			auto returnvalue = g_scripts->executeString(data, name);
 			if (!returnvalue.empty()) {
 				g_dispatcher.addTask(createTask(std::bind(&ProtocolLuaApi::sendErrorMessage, std::static_pointer_cast<ProtocolLuaApi>(shared_from_this()),
