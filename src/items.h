@@ -433,6 +433,7 @@ public:
 	bool reload();
 	void clear();
 
+	bool loadFromYaml(const std::string& file);
 	bool loadFromOtb(const std::string& file);
 
 	const ItemType& operator[](size_t id) const { return getItemType(id); }

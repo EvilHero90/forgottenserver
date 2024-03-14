@@ -1,0 +1,10 @@
+items:
+  - id: 1000
+    name: "Test"
+    attack: 100
+    attributes:
+      - physical: 10
+      - energy: 10
+  - id: 5000
+    name: "Mario"
+    

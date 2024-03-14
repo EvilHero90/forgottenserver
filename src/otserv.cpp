@@ -157,6 +157,11 @@ void mainLoader(ServiceManager* services)
 		return;
 	}
 
+	if (!Item::items.loadFromYaml("data/test.yml")) {
+		startupErrorMessage("Unable to load items (YAML)!");
+		return;
+	}
+
 	std::cout << ">> Loading script systems" << std::endl;
 	if (!ScriptingManager::getInstance().loadScriptSystems()) {
 		startupErrorMessage("Failed to load script systems");

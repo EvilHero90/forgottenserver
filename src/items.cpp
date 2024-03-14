@@ -8,6 +8,10 @@
 #include "movement.h"
 #include "pugicast.h"
 #include "weapons.h"
+#include "node.hpp"
+#include <fstream>
+#include <iostream>
+#include <utility>
 
 extern MoveEvents* g_moveEvents;
 extern Weapons* g_weapons;
@@ -317,6 +321,7 @@ bool Items::reload()
 {
 	clear();
 	loadFromOtb("data/items/items.otb");
+	loadFromYaml("data/test.yml");
 
 	if (!loadFromXml()) {
 		return false;
@@ -325,6 +330,81 @@ bool Items::reload()
 	g_moveEvents->reload();
 	g_weapons->reload();
 	g_weapons->loadDefaults();
+	return true;
+}
+
+bool Items::loadFromYaml(const std::string& file)
+{
+	std::filesystem::path dir = "data/items/yaml/";
+	std::filesystem::recursive_directory_iterator endit;
+	std::vector<std::string> temp;
+	std::vector<ItemType*> tempItem;
+	tempItem.reserve(45000);
+
+	for (std::filesystem::recursive_directory_iterator it(dir); it != endit; ++it) {
+		temp.push_back(it->path().string());
+	}
+
+	tempItem.resize(temp.size());
+
+	auto cores = std::thread::hardware_concurrency();
+	std::vector<std::thread> t(cores);
+	size_t size = temp.size();
+	uint16_t perCore = size / cores;
+
+	uint64_t start = OTSYS_TIME();
+
+	for (int i = 0; i < cores; ++i) {
+		t[i] = std::thread([i, perCore, cores, size, &temp, &tempItem, this] {
+			int start = i == 0 ? 1 : perCore * i;
+			int end = i == 0 ? perCore * 1 : start + perCore;
+			if (i == cores - 1) {
+				end = size;
+			}
+
+			for (int x = start; x < end; x++) {
+				// open the yaml file
+				std::ifstream ifs(temp[x]);
+
+				// deserialize the loaded file contents.
+				fkyaml::node root = fkyaml::node::deserialize(ifs);
+
+				// parsing content of the item (id,name,etc.)
+				for (auto& item : root["items"]) {
+					// get reference to the "id" value with `get_value` function.
+					uint16_t id = item["id"].get_value<uint16_t>();
+					ItemType* iType = new ItemType();
+					iType->id = id;
+					if (item["attributes"].is_sequence()) {
+						for (auto& attribute : item["attributes"]) {
+							if (attribute.contains("physical")) {
+								std::cout << attribute["physical"].get_value<uint16_t>() << std::endl;
+							}
+							if (attribute.contains("energy")) {
+								std::cout << attribute["energy"].get_value<uint16_t>() << std::endl;
+							}
+						}
+					}
+					
+					// have to use int indexes and re asign as push_back is not thread safe
+					tempItem[x] = iType;
+				}
+
+				std::cout << root << std::endl;
+			}
+		});
+	}
+
+	for (auto& th : t) {
+		th.join();
+	}
+
+	std::cout << (OTSYS_TIME() - start) / (1000.) << " seconds" << std::endl;
+	tempItem.shrink_to_fit();
+	//std::cout << temp.size() << std::endl;
+	//std::cout << tempItem.size() << std::endl;
+	//std::cout << tempItem[normal_random(1,12000)]->id << std::endl;
+
 	return true;
 }
 
