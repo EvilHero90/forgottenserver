@@ -215,6 +215,7 @@ function NpcModules:init(npc, player)
 
     if self.modStorage then
         player:setStorageValue(self.modStorage.key, self.modStorage.value)
+        player:updateCreature(npc)
     end
 
     if self.modExperience then

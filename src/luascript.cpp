@@ -2945,6 +2945,7 @@ void LuaScriptInterface::registerFunctions()
 	               LuaScriptInterface::luaPlayerSetClientLowLevelBonusDisplay);
 
 	registerMethod(L, "Player", "sendResourceBalance", LuaScriptInterface::luaPlayerSendResourceBalance);
+	registerMethod(L, "Player", "updateCreature", LuaScriptInterface::luaPlayerUpdateCreature);
 
 	// Monster
 	registerClass(L, "Monster", "Creature", LuaScriptInterface::luaMonsterCreate);
@@ -11309,6 +11310,22 @@ int LuaScriptInterface::luaPlayerSendResourceBalance(lua_State* L)
 	} else {
 		lua_pushnil(L);
 	}
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerUpdateCreature(lua_State* L)
+{
+	// player:updateCreature(creature)
+	Player* player = tfs::lua::getUserdata<Player>(L, 1);
+	if (player) {
+		Creature* creature = tfs::lua::getUserdata<Creature>(L, 2);
+		if (creature) {
+			player->sendUpdateTileCreature(creature);
+			lua_pushboolean(L, true);
+			return 1;
+		}
+	}
+	lua_pushnil(L);
 	return 1;
 }
 
